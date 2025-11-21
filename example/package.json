@@ -4,15 +4,14 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start"
   },
   "dependencies": {
-    "react": "17.0.2",
-    "react-native": "0.66.0",
-    "react-native-reanimated": "2.3.0-beta.2",
-    "react-native-vision-camera": "2.9.0"
+    "react": "18.2.0",
+    "react-native": "0.70.9",
+    "react-native-reanimated": "2.14.4",
+    "react-native-vision-camera": "3.6.17"
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",

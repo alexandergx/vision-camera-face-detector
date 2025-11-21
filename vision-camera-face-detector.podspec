@@ -10,11 +10,13 @@ Pod::Spec.new do |s|
   s.license      = package["license"]
   s.authors      = package["author"]
 
-  s.platforms    = { :ios => "11.0" }
-  s.source       = { :git => "https://github.com/rodgomesc/vision-camera-face-detector.git", :tag => "#{s.version}" }
+  s.platforms    = { :ios => "13.0" }
+  s.source       = { :git => "https://github.com/alexandergx/vision-camera-face-detector.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
 
   s.dependency "React-Core"
   s.dependency "GoogleMLKit/FaceDetection"
+  s.dependency "GTMSessionFetcher/Core", ">= 3.3", "< 4.0"
+  s.dependency "GoogleUtilities/UserDefaults", "~> 8.0"
 end

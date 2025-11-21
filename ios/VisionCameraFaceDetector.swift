@@ -7,19 +7,27 @@ import UIKit
 import AVFoundation
 
 @objc(VisionCameraFaceDetector)
-public class VisionCameraFaceDetector: NSObject, FrameProcessorPluginBase {
+public class VisionCameraFaceDetector: FrameProcessorPlugin {
     static var FaceDetectorOption: FaceDetectorOptions = {
         let option = FaceDetectorOptions()
         option.contourMode = .all
         option.classificationMode = .all
         option.landmarkMode = .all
-        option.performanceMode = .accurate // doesn't work in fast mode!, why?
+        option.performanceMode = .accurate
         return option
     }()
     
     static var faceDetector = FaceDetector.faceDetector(options: FaceDetectorOption)
     
-    private static func processContours(from face: Face) -> [String:[[String:CGFloat]]] {
+    public override init() {
+        super.init()
+    }
+    
+    public override init(options: [String : Any]?) {
+        super.init(options: options)
+    }
+    
+    private func processContours(from face: Face) -> [String:[[String:CGFloat]]] {
       let faceContoursTypes = [
         FaceContourType.face,
         FaceContourType.leftEyebrowTop,
@@ -80,7 +88,7 @@ public class VisionCameraFaceDetector: NSObject, FrameProcessorPluginBase {
       return faceContoursTypesMap
     }
     
-    private static func processBoundingBox(from face: Face) -> [String:Any] {
+    private func processBoundingBox(from face: Face) -> [String:Any] {
         let frameRect = face.frame
 
         let offsetX = (frameRect.midX - ceil(frameRect.width)) / 2.0
@@ -99,22 +107,21 @@ public class VisionCameraFaceDetector: NSObject, FrameProcessorPluginBase {
         ]
     }
     
-    @objc
-    public static func callback(_ frame: Frame!, withArgs _: [Any]!) -> Any! {
+    public override func callback(_ frame: Frame, withArguments arguments: [String : Any]?) -> Any? {
         let image = VisionImage(buffer: frame.buffer)
         image.orientation = .up
         
         var faceAttributes: [Any] = []
         
         do {
-            let faces: [Face] =  try faceDetector.results(in: image)
-            if (!faces.isEmpty){
+            let faces: [Face] = try VisionCameraFaceDetector.faceDetector.results(in: image)
+            if (!faces.isEmpty) {
                 for face in faces {
                     var map: [String: Any] = [:]
                     
-                    map["rollAngle"] = face.headEulerAngleZ  // Head is tilted sideways rotZ degrees
-                    map["pitchAngle"] = face.headEulerAngleX  // Head is rotated to the uptoward rotX degrees
-                    map["yawAngle"] = face.headEulerAngleY   // Head is rotated to the right rotY degrees
+                    map["rollAngle"] = face.headEulerAngleZ
+                    map["pitchAngle"] = face.headEulerAngleX
+                    map["yawAngle"] = face.headEulerAngleY
                     map["leftEyeOpenProbability"] = face.leftEyeOpenProbability
                     map["rightEyeOpenProbability"] = face.rightEyeOpenProbability
                     map["smilingProbability"] = face.smilingProbability

@@ -4,8 +4,9 @@ import { runOnJS } from 'react-native-reanimated';
 
 import { StyleSheet } from 'react-native';
 import {
-  useCameraDevices,
+  useCameraDevice,
   useFrameProcessor,
+  runAtTargetFps,
 } from 'react-native-vision-camera';
 
 import { Camera } from 'react-native-vision-camera';
@@ -15,8 +16,7 @@ export default function App() {
   const [hasPermission, setHasPermission] = React.useState(false);
   const [faces, setFaces] = React.useState<Face[]>();
 
-  const devices = useCameraDevices();
-  const device = devices.front;
+  const device = useCameraDevice('front');
 
   React.useEffect(() => {
     console.log(faces);
@@ -25,14 +25,16 @@ export default function App() {
   React.useEffect(() => {
     (async () => {
       const status = await Camera.requestCameraPermission();
-      setHasPermission(status === 'authorized');
+      setHasPermission(status === 'granted');
     })();
   }, []);
 
   const frameProcessor = useFrameProcessor((frame) => {
     'worklet';
-    const scannedFaces = scanFaces(frame);
-    runOnJS(setFaces)(scannedFaces);
+    runAtTargetFps(5, () => {
+      const scannedFaces = scanFaces(frame);
+      runOnJS(setFaces)(scannedFaces);
+    });
   }, []);
 
   return device != null && hasPermission ? (
@@ -41,7 +43,6 @@ export default function App() {
       device={device}
       isActive={true}
       frameProcessor={frameProcessor}
-      frameProcessorFps={5}
     />
   ) : null;
 }
